@@ -17,9 +17,9 @@ const headers = {
   "content-type": "application/json"
 };
 
-let days = []
+let days = [];
 
-const CreateDayPlanning = async (dates) => {
+const CreateDayPlanning = async dates => {
   let foundDates = [];
 
   await base("Dagplanning")
@@ -111,54 +111,60 @@ exports.handler = async function(event) {
   const people = data.filter(value => {
     return value[0].match("^[0-9]{4,4}$");
   });
-  
-  await CreateDayPlanning(dates)
 
-  let personalids = []
+  await CreateDayPlanning(dates);
+
+  let personalids = [];
 
   await base("Medewerkers")
-  .select()
-  .all()
-  .then(records => {
-    records.forEach(record => {
-      personalids.push({
-        uid: String(record.get('Persoonsnummer')),
-        rid: record.id
+    .select()
+    .all()
+    .then(records => {
+      records.forEach(record => {
+        personalids.push({
+          uid: String(record.get("Persoonsnummer")),
+          rid: record.id
+        });
+      });
+    })
+    .catch(err => {
+      console.error(err);
+    });
+
+  const recordData = [];
+
+  days.forEach((day) => {
+    people.forEach(person => {
+      const id = personalids.find(record => record.uid === person[0]);
+      const times = person[day.index + 2];
+      if (
+        times === "" ||
+        times === "Vakantie" ||
+        times === "ziek" ||
+        times === "vrij"
+      )
+        return;
+      if (!id) return;
+      if (!id.rid) return;
+      recordData.push({
+        fields: {
+          Aanwezig: times,
+          "Kies naam": [id.rid],
+          Datum: [day.id]
+        }
       });
     });
-  })
-  .catch(err => {
-    console.error(err);
   });
 
-  days.forEach(day => {
-    people.forEach(person => {
-      const id = personalids.find(record => record.uid === person[0])
-      const times = person[day.index + 2]
-      if(times === "" || times === "Vakantie" || times === "ziek" || times === "vrij") return;
-      if(!id) return;
-      if(!id.rid) return;
-      base('Aanwezigheid').create([
-        {
-          "fields": {
-            "Aanwezig": times,
-            "Kies naam": [
-              id.rid
-            ],
-            "Datum": [
-              day.id
-            ]
-          }
-        },
-      ], function(err, records) {
-        if (err) {
-          console.error(err);
-          return;
-        }
+  while(recordData.length) {
+    base("Aanwezigheid").create(recordData.splice(0,10), function(err, records) {
+      if (err) {
+        console.error(err);
         return;
-      });
-  })
-})
+      }
+    });
+  }
+
 
   return {
     statusCode,
