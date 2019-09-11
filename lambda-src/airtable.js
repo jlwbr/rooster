@@ -1,5 +1,5 @@
 require("dotenv").config();
-const Papa = require("PapaParse");
+const Papa = require("papaparse");
 const moment = require("moment");
 
 var Airtable = require("airtable");
