@@ -28,5 +28,5 @@
     "netlify-lambda": "^1.6.3",
     "papaparse": "^5.0.2"
   },
-  "dependencies": { }
+  "dependencies": {}
 }
