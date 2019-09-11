@@ -157,14 +157,13 @@ exports.handler = async function(event) {
   });
 
   while(recordData.length) {
-    base("Aanwezigheid").create(recordData.splice(0,10), function(err, records) {
+    await base("Aanwezigheid").create(recordData.splice(0,10), function(err, records) {
       if (err) {
         console.error(err);
         return;
       }
     });
   }
-
 
   return {
     statusCode,
