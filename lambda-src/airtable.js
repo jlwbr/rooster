@@ -163,8 +163,8 @@ exports.handler = async function(event) {
   return {
     statusCode,
     headers,
-    body: {
+    body: JSON.stringify({
       status: "Succes"
-    }
+    })
   };
 };
