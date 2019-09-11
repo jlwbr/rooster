@@ -1,6 +1,6 @@
 # netlify.toml 
 
 [build]
-  command = ""
+  command = "npm run build"
   publish = ""
   functions = "lambda"
