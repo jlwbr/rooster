@@ -99,6 +99,7 @@ exports.handler = async function(event) {
     };
   }
 
+  console.log(event.body);
   let body = JSON.parse(event.body);
   const parsed = Papa.parse(body.data);
 
@@ -133,28 +134,31 @@ exports.handler = async function(event) {
 
   const recordData = [];
 
-  days.forEach((day) => {
-    people.forEach(person => {
-      const id = personalids.find(record => record.uid === person[0]);
-      const times = person[day.index + 2];
-      if (
-        times === "" ||
-        times === "Vakantie" ||
-        times === "ziek" ||
-        times === "vrij"
-      )
-        return;
-      if (!id) return;
-      if (!id.rid) return;
-      recordData.push({
-        fields: {
-          Aanwezig: times,
-          "Kies naam": [id.rid],
-          Datum: [day.id]
-        }
+  while(days.length && days) {
+    days.forEach((day) => {
+      people.forEach(person => {
+        const id = personalids.find(record => record.uid === person[0]);
+        const times = person[day.index + 2];
+        if (
+          times === "" ||
+          times === "Vakantie" ||
+          times === "ziek" ||
+          times === "vrij"
+        )
+          return;
+        if (!id) return;
+        if (!id.rid) return;
+        recordData.push({
+          fields: {
+            Aanwezig: times,
+            "Kies naam": [id.rid],
+            Datum: [day.id]
+          }
+        });
       });
     });
-  });
+    break;
+  }
 
   while(recordData.length) {
     await base("Aanwezigheid").create(recordData.splice(0,10), function(err, records) {
