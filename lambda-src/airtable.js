@@ -17,66 +17,116 @@ const headers = {
   "content-type": "application/json"
 };
 
-let days = [];
+const dateExists = async date =>
+  new Promise((resolve, reject) => {
+    const dates = [];
+    base("Dagplanning")
+      .select({
+        filterByFormula:
+          'IS_SAME({Datum}, DATETIME_PARSE("' +
+          date +
+          '", "DD-MM-YYYY"), "day")',
+        maxRecords: 1,
+        view: "Overview"
+      })
+      .eachPage(
+        function page(records, fetchNextPage) {
+          // This function (`page`) will get called for each page of records.
 
-const CreateDayPlanning = async dates => {
-  let foundDates = [];
+          records.forEach(record => {
+            dates.push({
+              id: record.id,
+              date: moment(record.get("Datum"))
+            });
+          });
 
-  await base("Dagplanning")
-    .select()
-    .all()
-    .then(records => {
-      records.forEach(record => {
-        foundDates.push({
-          id: record.id,
-          date: moment(record.get("Datum"))
-        });
-      });
-    })
-    .catch(err => {
-      console.error(err);
-    });
-
-  const created = foundDates.filter(foundDate =>
-    dates.find(date => moment(date).isSame(foundDate.date))
-  );
-
-  const notCreated = dates
-    .filter(
-      date => !foundDates.find(foundDate => moment(foundDate.date).isSame(date))
-    )
-    .filter(value => value.isValid());
-
-  if (notCreated && notCreated.length) {
-    notCreated.forEach(date => {
-      base("Dagplanning").create(
-        [
-          {
-            fields: {
-              Datum: moment(date).format("YYYY-MM-DD"),
-              Dagverdeling: [],
-              Overdrachten: [],
-              Aanwezig: []
-            }
-          }
-        ],
-        function(err, records) {
+          // To fetch the next page of records, call `fetchNextPage`.
+          // If there are more records, `page` will get called again.
+          // If there are no more records, `done` will get called.
+          fetchNextPage();
+        },
+        function done(err) {
           if (err) {
             reject(err);
+          } else if (dates.length) {
+            resolve(dates[0]);
+          } else {
+            resolve(false);
           }
         }
       );
-    });
-  } else {
-    days = created.map(item => {
-      return {
-        id: item.id,
-        date: item.date,
-        index: dates.findIndex(date => date.isSame(item.date))
-      };
-    });
-  }
-};
+  });
+
+const createDayPlanning = async date =>
+  new Promise((resolve, reject) => {
+    const dates = [];
+    base("Dagplanning").create(
+      [
+        {
+          fields: {
+            Datum: moment(date).format("YYYY-MM-DD"),
+            Dagverdeling: [],
+            Overdrachten: [],
+            Aanwezig: []
+          }
+        }
+      ],
+      function(err, records) {
+        if (err) {
+          reject(err);
+        }
+
+        records.forEach(record => {
+          dates.push({
+            id: record.id,
+            date: moment(record.get("Datum"))
+          });
+        });
+        if (dates.length) {
+          resolve(dates[0]);
+        } else {
+          resolve(false);
+        }
+      }
+    );
+  });
+
+const getPersonalID = async id =>
+  new Promise((resolve, reject) => {
+    const personalIDs = [];
+    base("Medewerkers")
+      .select({
+        filterByFormula: '{Persoonsnummer} = "' + id + '"',
+        maxRecords: 1,
+        view: "Medewerkers"
+      })
+      .eachPage(
+        function page(records, fetchNextPage) {
+          // This function (`page`) will get called for each page of records.
+
+          records.forEach(record => {
+            personalIDs.push({
+              id: record.id,
+              personalID: record.get("Persoonsnummer")
+            });
+          });
+
+          // To fetch the next page of records, call `fetchNextPage`.
+          // If there are more records, `page` will get called again.
+          // If there are no more records, `done` will get called.
+          fetchNextPage();
+        },
+        function done(err) {
+          if (err) {
+            reject(err);
+          } else if (personalIDs.length) {
+            resolve(personalIDs[0]);
+          } else {
+            resolve(false);
+          }
+        }
+      );
+  });
 
 exports.handler = async function(event) {
   if (event.httpMethod !== "POST") {
@@ -99,69 +149,70 @@ exports.handler = async function(event) {
     };
   }
 
-  console.log(event.body);
-  let body = JSON.parse(event.body);
-  const parsed = Papa.parse(body.data);
+  // Decode and parse incoming data
+  const body = JSON.parse(event.body);
+  const parsed = Papa.parse(decodeURIComponent(body.data), {
+    header: true
+  });
 
   const data = parsed.data;
 
-  const dates = data[1].slice(1).map(date => {
-    return moment(date, "DD-MM-YYYY");
-  });
+  const dates = [...new Set(data.map(x => x.Dag).filter(Boolean))];
+  const importedIDs = [...new Set(data.map(x => x["Persnr."]).filter(Boolean))];
+  const Roster = [];
 
-  const people = data.filter(value => {
-    return value[0].match("^[0-9]{4,4}$");
-  });
-
-  await CreateDayPlanning(dates);
-
-  let personalids = [];
-
-  await base("Medewerkers")
-    .select()
-    .all()
-    .then(records => {
-      records.forEach(record => {
-        personalids.push({
-          uid: String(record.get("Persoonsnummer")),
-          rid: record.id
-        });
-      });
-    })
-    .catch(err => {
+  const dayPlanningPromise = dates.map(async day => {
+    const date = await dateExists(day).catch(err => {
       console.error(err);
     });
+    if (date) {
+      return (day = date);
+    } else {
+      const newDay = await createDayPlanning(moment(day, "DD-MM-YYYY")).catch(
+        err => {
+          console.error(err);
+        }
+      );
+      return (day = newDay);
+    }
+  });
 
-  const recordData = [];
+  const IDsPromise = importedIDs.map(async importedID => {
+    const id = await getPersonalID(parseInt(importedID)).catch(err =>
+      console.error(err)
+    );
+    if (id) {
+      return (importedID = id);
+    } else {
+      return (importedID = null);
+    }
+  });
 
-  while(days.length && days) {
-    days.forEach((day) => {
-      people.forEach(person => {
-        const id = personalids.find(record => record.uid === person[0]);
-        const times = person[day.index + 2];
-        if (
-          times === "" ||
-          times === "Vakantie" ||
-          times === "ziek" ||
-          times === "vrij"
-        )
-          return;
-        if (!id) return;
-        if (!id.rid) return;
-        recordData.push({
-          fields: {
-            Aanwezig: times,
-            "Kies naam": [id.rid],
-            Datum: [day.id]
-          }
-        });
-      });
+  const dayPlanning = await Promise.all(dayPlanningPromise);
+  const uncleanIDs = await Promise.all(IDsPromise);
+  const IDs = uncleanIDs.filter(Boolean);
+
+  for (i in data) {
+    const shift = data[i];
+    const day = dayPlanning.find(Planning =>
+      moment(Planning.date).isSame(moment(shift.Dag, "DD-MM-YYYY"))
+    );
+    const id = IDs.find(oldID => {
+      return oldID.personalID === parseInt(shift["Persnr."])
     });
-    break;
+    if (id && day && shift) {
+      Roster.push({
+        fields: {
+          Aanwezig: shift.Van + " - " + shift.Tot,
+          "Kies naam": [id.id],
+          Datum: [day.id]
+        }
+      });
+    }
   }
 
-  while(recordData.length) {
-    await base("Aanwezigheid").create(recordData.splice(0,10), function(err, records) {
+  while(Roster.length) {
+    await base("Aanwezigheid").create(Roster.splice(0,10), function(err, records) {
       if (err) {
         console.error(err);
         return;
@@ -170,10 +221,8 @@ exports.handler = async function(event) {
   }
 
   return {
-    statusCode,
+    statusCode: 200,
     headers,
-    body: JSON.stringify({
-      status: "Succes"
-    })
+    body: "Succes"
   };
 };

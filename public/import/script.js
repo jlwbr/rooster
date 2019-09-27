@@ -5,7 +5,7 @@ window.onload = function() {
   fileInput.addEventListener("change", function(e) {
     var file = fileInput.files[0];
     var http = new XMLHttpRequest();
-    var url = "http://localhost:9000/airtable";
+    var url = "https://roosters.netlify.com/.netlify/functions/airtable";
     var textType = /text.*|application.*/;
 
     if (file.type.match(textType)) {
@@ -13,8 +13,9 @@ window.onload = function() {
 
       reader.onload = function(e) {
         var data = {
-          data: reader.result.replace(/(?:\r\n|\r|\n)/g, "\n").replace(/(?:\r\n|\r|\n)$/, "")
+          data: encodeURIComponent(reader.result)
         };
+        console.log(data)
         http.open("POST", url, true);
         http.setRequestHeader("Content-type", "application/json");
 
