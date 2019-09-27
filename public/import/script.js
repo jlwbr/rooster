@@ -30,7 +30,7 @@ window.onload = function() {
 
       reader.readAsText(file);
     } else {
-      fileDisplayArea.innerText = "File not supported!";
+      fileDisplayArea.innerText = "Bestand niet ondersteund!";
     }
   });
 };
