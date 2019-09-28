@@ -5,7 +5,7 @@ window.onload = function() {
   fileInput.addEventListener("change", function(e) {
     var file = fileInput.files[0];
     var http = new XMLHttpRequest();
-    var url = "https://roosters.netlify.com/.netlify/functions/airtable";
+    var url = "https://roosters.netlify.com/.netlify/functions/airtable_old";
     var textType = /text.*|application.*/;
 
     if (file.type.match(textType)) {
