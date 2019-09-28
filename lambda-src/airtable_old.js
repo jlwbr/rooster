@@ -54,7 +54,6 @@ const CreateDayPlanning = async dates => {
           {
             fields: {
               Datum: moment(date).format("YYYY-MM-DD"),
-              Dagverdeling: [],
               Overdrachten: [],
               Aanwezig: []
             }
