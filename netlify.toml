@@ -2,5 +2,5 @@
 
 [build]
   command = "npm run build"
-  publish = "public"
+  publish = "public/public"
   functions = "lambda"
