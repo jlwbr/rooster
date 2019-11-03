@@ -10,7 +10,6 @@ Airtable.configure({
 
 const base = Airtable.base("appHWxFKBiCLRiJOu");
 
-const statusCode = 200;
 const headers = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "Content-Type",
@@ -32,13 +31,15 @@ const dateExists = async date =>
       .eachPage(
         function page(records, fetchNextPage) {
           // This function (`page`) will get called for each page of records.
-
-          records.forEach(record => {
-            dates.push({
-              id: record.id,
-              date: moment(record.get("Datum"))
+          
+          if(records && records.length) {
+            records.forEach(record => {
+              dates.push({
+                id: record.id,
+                date: moment(record.get("Datum"))
+              });
             });
-          });
+          }
 
           // To fetch the next page of records, call `fetchNextPage`.
           // If there are more records, `page` will get called again.
@@ -65,7 +66,6 @@ const createDayPlanning = async date =>
         {
           fields: {
             Datum: moment(date).format("YYYY-MM-DD"),
-            Dagverdeling: [],
             Overdrachten: [],
             Aanwezig: []
           }
@@ -76,12 +76,14 @@ const createDayPlanning = async date =>
           reject(err);
         }
 
-        records.forEach(record => {
-          dates.push({
-            id: record.id,
-            date: moment(record.get("Datum"))
+        if(records && records.length) {
+          records.forEach(record => {
+            dates.push({
+              id: record.id,
+              date: moment(record.get("Datum"))
+            });
           });
-        });
+        }
         if (dates.length) {
           resolve(dates[0]);
         } else {
@@ -104,12 +106,14 @@ const getPersonalID = async id =>
         function page(records, fetchNextPage) {
           // This function (`page`) will get called for each page of records.
 
-          records.forEach(record => {
-            personalIDs.push({
-              id: record.id,
-              personalID: record.get("Persoonsnummer")
+          if(records && records.length) {
+            records.forEach(record => {
+              personalIDs.push({
+                id: record.id,
+                personalID: record.get("Persoonsnummer")
+              });
             });
-          });
+          }
 
           // To fetch the next page of records, call `fetchNextPage`.
           // If there are more records, `page` will get called again.
@@ -200,12 +204,12 @@ exports.handler = async function(event) {
     const id = IDs.find(oldID => {
       return oldID.personalID === parseInt(shift["Persnr."])
     });
-    if (id && day && shift) {
+    if (id && day && shift && shift.Van !== "00:00" && shift.Tot && shift.Tot !== "00:00") {
       Roster.push({
         fields: {
           Aanwezig: shift.Van + " - " + shift.Tot,
           "Kies naam": [id.id],
-          Datum: [day.id]
+          DatumLink: [day.id]
         }
       });
     }

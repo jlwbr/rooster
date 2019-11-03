@@ -1,0 +1,15 @@
+.header {
+   background-color: silver;
+}
+
+.group {
+   background-color: gainsboro;
+   font-weight: 700;
+   padding: 0.7vh;
+}
+
+.printbutton {
+   position: absolute; /*or fixed*/
+   top: 10px;
+   right: 10px;
+}
