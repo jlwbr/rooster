@@ -1,0 +1,1 @@
+{"errors":[{"message":"Cannot query field \"Persoonsnummer\" on type \"AirtableData\".","locations":[{"line":8,"column":9}]},{"message":"Cannot query field \"Persoonsnummer\" on type \"AirtableData\".","locations":[{"line":16,"column":9}]}]}

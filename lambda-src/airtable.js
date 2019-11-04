@@ -65,7 +65,6 @@ const createDayPlanning = async date =>
         {
           fields: {
             Datum: moment(date).format("YYYY-MM-DD"),
-            Dagverdeling: [],
             Overdrachten: [],
             Aanwezig: []
           }
@@ -200,12 +199,12 @@ exports.handler = async function(event) {
     const id = IDs.find(oldID => {
       return oldID.personalID === parseInt(shift["Persnr."])
     });
-    if (id && day && shift) {
+    if (id && day && shift && shift.Tot != "00:00") {
       Roster.push({
         fields: {
           Aanwezig: shift.Van + " - " + shift.Tot,
           "Kies naam": [id.id],
-          Datum: [day.id]
+          DatumLink: [day.id]
         }
       });
     }
