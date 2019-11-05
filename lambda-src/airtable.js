@@ -17,6 +17,8 @@ const headers = {
   "content-type": "application/json"
 };
 
+let status = "Succes"
+
 const dateExists = async date =>
   new Promise((resolve, reject) => {
     const dates = [];
@@ -163,6 +165,7 @@ exports.handler = async function(event) {
   const dayPlanningPromise = dates.map(async day => {
     const date = await dateExists(day).catch(err => {
       console.error(err);
+      status = err
     });
     if (date) {
       return (day = date);
@@ -170,6 +173,7 @@ exports.handler = async function(event) {
       const newDay = await createDayPlanning(moment(day, "DD-MM-YYYY")).catch(
         err => {
           console.error(err);
+          status = err
         }
       );
       return (day = newDay);
@@ -177,9 +181,10 @@ exports.handler = async function(event) {
   });
 
   const IDsPromise = importedIDs.map(async importedID => {
-    const id = await getPersonalID(parseInt(importedID)).catch(err =>
+    const id = await getPersonalID(parseInt(importedID)).catch(err => {
       console.error(err)
-    );
+      status = err
+    });
     if (id) {
       return (importedID = id);
     } else {
@@ -214,6 +219,7 @@ exports.handler = async function(event) {
     await base("Aanwezigheid").create(Roster.splice(0,10), function(err, records) {
       if (err) {
         console.error(err);
+        status = err
         return;
       }
     });
