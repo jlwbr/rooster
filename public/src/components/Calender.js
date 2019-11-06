@@ -100,7 +100,7 @@ export default ({ date }) => {
             Cluster
             BerekendeKleur
             Sluiten
-            Kassa
+            OnderstreeptKleur
           }
         }
       }
@@ -114,7 +114,7 @@ export default ({ date }) => {
     cluster: shift.data.Cluster,
     color: shift.data.BerekendeKleur,
     closing: shift.data.Sluiten,
-    register: shift.data.Kassa
+    register: shift.data.OnderstreeptKleur
   }))
   const shiftsArr = Object.values(
     shifts.reduce((result, { datum, naam, aanwezig, cluster, color, closing, register }) => {
