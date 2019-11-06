@@ -1,9 +1,9 @@
 {
-  "name": "gatsby-starter-default",
+  "name": "rooster",
   "private": true,
-  "description": "A simple starter to get up and developing quickly with Gatsby",
+  "description": "Vieuw weekly work scedule",
   "version": "0.1.0",
-  "author": "Kyle Mathews <mathews.kyle@gmail.com>",
+  "author": "Joel Weber",
   "dependencies": {
     "gatsby": "^2.15.28",
     "gatsby-image": "^2.2.23",
