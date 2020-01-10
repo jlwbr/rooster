@@ -1,6 +1,5 @@
 # netlify.toml 
 
 [build]
-  command = "npm run build"
-  publish = "public"
-  functions = "lambda"
+  command = "npm run build && npx staticrypt dist/index.html vedoka -o dist/index.html -t Wachtwoord"
+  publish = "dist"
