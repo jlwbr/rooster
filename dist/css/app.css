@@ -1,83 +1,32 @@
-/**
- * Responsive Bootstrap Tabs by @hayatbiralem
- * 15 May 2015
- */
-@media screen and (max-width: 479px) {
-  .nav-tabs-responsive > li {
-    display: none;
-    width: 23%; }
-    .nav-tabs-responsive > li > a {
-      max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      word-wrap: normal;
-      width: 100%;
-      width: 100%;
-      text-align: center;
-      vertical-align: top; }
-    .nav-tabs-responsive > li.active {
-      width: 54%; }
-      .nav-tabs-responsive > li.active:first-child {
-        margin-left: 23%; }
-    .nav-tabs-responsive > li.active, .nav-tabs-responsive > li.prev, .nav-tabs-responsive > li.next {
-      display: block; }
-    .nav-tabs-responsive > li.prev, .nav-tabs-responsive > li.next {
-      -webkit-transform: scale(0.9);
-      transform: scale(0.9); }
-    .nav-tabs-responsive > li.next > a,
-    .nav-tabs-responsive > li.prev > a {
-      -webkit-transition: none;
-      transition: none; }
-      .nav-tabs-responsive > li.next > a .text,
-      .nav-tabs-responsive > li.prev > a .text {
-        display: none; }
-      .nav-tabs-responsive > li.next > a:after, .nav-tabs-responsive > li.next > a:after,
-      .nav-tabs-responsive > li.prev > a:after,
-      .nav-tabs-responsive > li.prev > a:after {
-        position: relative;
-        top: 1px;
-        display: inline-block;
-        font-family: 'Glyphicons Halflings';
-        font-style: normal;
-        font-weight: 400;
-        line-height: 1;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale; }
-    .nav-tabs-responsive > li.prev > a:after {
-      content: "\e079"; }
-    .nav-tabs-responsive > li.next > a:after {
-      content: "\e080"; }
-    .nav-tabs-responsive > li.dropdown > a > .caret {
-      display: none; }
-    .nav-tabs-responsive > li.dropdown > a:after {
-      content: "\e114"; }
-    .nav-tabs-responsive > li.dropdown.active > a:after {
-      display: none; }
-    .nav-tabs-responsive > li.dropdown.active > a > .caret {
-      display: inline-block; }
-    .nav-tabs-responsive > li.dropdown .dropdown-menu.pull-xs-left {
-      left: 0;
-      right: auto; }
-    .nav-tabs-responsive > li.dropdown .dropdown-menu.pull-xs-center {
-      right: auto;
-      left: 50%;
-      -webkit-transform: translateX(-50%);
-      transform: translateX(-50%); }
-    .nav-tabs-responsive > li.dropdown .dropdown-menu.pull-xs-right {
-      left: auto;
-      right: 0; } }
+.nav-tabs-wrapper {
+  display: block;
+  overflow: hidden;
+  height: calc(1.5rem + 1rem + 2px);
+  /** 1.5 is font-size, 1 is padding top and bottom, 2 is border width top and bottom */
+  position: relative;
+  z-index: 1;
+  margin-bottom: -1px; }
+  .nav-tabs-wrapper .nav-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    border-bottom: 0; }
+  .nav-tabs-wrapper .nav-item {
+    margin-bottom: 0; }
+    .nav-tabs-wrapper .nav-item:first-child {
+      padding-left: 15px; }
+    .nav-tabs-wrapper .nav-item:last-child {
+      padding-right: 15px; }
+  .nav-tabs-wrapper .nav-link {
+    white-space: nowrap; }
+  .nav-tabs-wrapper .dragscroll:active,
+  .nav-tabs-wrapper .dragscroll:active a {
+    cursor: -webkit-grabbing; }
 
-/**
- * Demo Styles
- */
-.wrapper {
-  padding: 15px 0; }
+.nav-tabs-wrapper-border {
+  display: block;
+  width: 100%;
+  border-top: 1px solid #ddd; }
 
-.bs-example-tabs .nav-tabs {
-  margin-bottom: 15px; }
-
-@media (max-width: 479px) {
-  #narrow-browser-alert {
-    display: none; } }
+.tab-pane {
+  padding: 1rem; }
 
