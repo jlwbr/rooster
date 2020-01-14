@@ -9,7 +9,9 @@
     "bundle": "npm install && npm run watch",
     "production": "cross-env NODE_ENV=production webpack --mode=production",
     "lint-sass": "sass-lint -v -q --format=compact",
-    "lint-js": "eslint --ext .js src/js/"
+    "lint-js": "eslint --ext .js src/js/",
+    "watch-func": "netlify-lambda serve functions",
+    "build-func": "netlify-lambda build functions"
   },
   "repository": {
     "type": "git",
@@ -47,9 +49,14 @@
     "webpack-cli": "^3.3.4"
   },
   "dependencies": {
+    "airtable": "^0.8.1",
     "bootstrap": "^4.4.1",
+    "dotenv": "^8.2.0",
     "dragscroll": "^0.0.8",
     "jquery": "^3.4.1",
+    "moment": "^2.24.0",
+    "netlify-lambda": "^1.6.3",
+    "papaparse": "^5.1.1",
     "popper.js": "^1.16.0",
     "responsive-bootstrap-tabs": "^1.0.0"
   }

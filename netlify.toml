@@ -1,5 +1,6 @@
 # netlify.toml 
 
 [build]
-  command = "npm run build && npx staticrypt dist/index.html Vedoka -o dist/index.html -t Wachtwoord"
+  command = "npm run production && npx staticrypt dist/index.html Vedoka -o dist/index.html -t Wachtwoord"
+  functions = "lambda"
   publish = "dist"
