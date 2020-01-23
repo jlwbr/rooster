@@ -1,0 +1,73 @@
+<!-- https://codepen.io/hayatbiralem/pen/KpzjOL -->
+
+<!doctype html>
+<html lang="en">
+
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+		integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	<title>overdrachten</title>
+<link href="css/app.css" rel="stylesheet"></head>
+
+<body>
+	<nav class="nav-tabs-wrapper">
+		<div class="nav nav-tabs dragscroll horizontal" id="nav-tab" role="tablist">
+			<a class="nav-item nav-link active" id="roster-tab" data-toggle="tab" href="#roster" role="tab"
+				aria-controls="form" aria-selected="true">Rooster</a>
+			<a class="nav-item nav-link" id="form-tab" data-toggle="tab" href="#form" role="tab" aria-controls="form"
+				aria-selected="false">Nieuwe overdracht</a>
+			<a class="nav-item nav-link" id="week-tab" data-toggle="tab" href="#week" role="tab" aria-controls="week"
+				aria-selected="false">Overdrachtenlijst</a>
+			<a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab"
+				aria-controls="nav-contact" aria-selected="false">Bijzonderheid product</a>
+			<a class="nav-item nav-link" id="import-tab" data-toggle="tab" href="#nav-import" role="tab"
+				aria-controls="nav-import" aria-selected="false">Importeer rooster</a>
+		</div>
+	</nav>
+
+	<span class="nav-tabs-wrapper-border" role="presentation"></span>
+
+	<div class="tab-content" id="nav-tabContent">
+		<div class="tab-pane fade show active" id="roster" role="tabpanel" aria-labelledby="roster-tab"><iframe
+				frameborder="0" onmousewheel="" width="100%" height="500"
+				src="https://drive.google.com/embeddedfolderview?id=1x9phuVl5f5CacnVWybDb91N54SnRKNG_#grid"></iframe>
+		</div>
+		<div class="tab-pane fade" id="form" role="tabpanel" aria-labelledby="form-tab"><iframe class="airtable-embed"
+				src="https://airtable.com/embed/shrNCaDKULGcg3vB2?backgroundColor=cyan" frameborder="0" onmousewheel=""
+				width="100%" height="1105" style="background: transparent; border: 1px solid #ccc;"></iframe></div>
+		<div class="tab-pane fade" id="week" role="tabpanel" aria-labelledby="week-tab"><iframe class="airtable-embed"
+				src="https://airtable.com/embed/shr1RWToNZrPUUA6p?backgroundColor=cyan" frameborder="0" onmousewheel=""
+				width="100%" height="700" style="background: transparent; border: 1px solid #ccc;"></iframe></div>
+		<div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab"><iframe
+				class="airtable-embed" src="https://airtable.com/embed/shrHokz6bNUxb2gtK?backgroundColor=cyan"
+				frameborder="0" onmousewheel="" width="100%" height="710"
+				style="background: transparent; border: 1px solid #ccc;"></iframe></div>
+		<div class="tab-pane fade" id="nav-import" role="tabpanel" aria-labelledby="import-tab">
+			<div id="page-wrapper">
+				<div id="container">
+					<h1>Importeer Roosters</h1>
+					<div>
+						<p>
+							Voeg hieronder een CSV bestand toe met een roosterbestand gexporteerd uit Manus+, zorg
+							ervoor dat
+							dit
+							bestand in unicode format is gexporteerd.
+						</p>
+						Selecteer roosterbestand(in Unicode format):
+						<br>
+						<input type="file" id="fileInput">
+					</div>
+					<pre id="fileDisplayArea"><pre>
+				</div>
+				<div class="loader" id="loader"></div>
+			</div>
+		</div>
+	</div>
+<script type="text/javascript" src="js/app.js"></script></body>
+
+</html>
