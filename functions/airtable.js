@@ -109,14 +109,44 @@ exports.handler = async function(event) {
     const id = IDs.find(oldID => {
       return oldID.personalID === parseInt(shift["Persnr."])
     });
+
     if (id && day && shift && shift.Tot != "00:00") {
-      Roster.push({
-        fields: {
-          Aanwezig: shift.Van + " - " + shift.Tot,
-          MDW: [id.id],
-          Datum: moment(day).format("YYYY-MM-DD")
-        }
-      });
+      if (moment(shift.Van, "HH:mm").isBefore(moment("13:00", "HH:mm"))) {
+        Roster.push({
+          fields: {
+            Aanwezig: shift.Van + " - " + shift.Tot,
+            MDW: [id.id],
+            Datum: moment(day).format("YYYY-MM-DD"),
+            Dagdeel: "Ochtend",
+            "Te doen": "Ochtend",
+            Pauze: "-",
+          }
+        });
+      }
+      if (moment(shift.Van, "HH:mm").isBetween(moment("13:00", "HH:mm"), moment("16:59", "HH:mm")) || (moment(shift.Tot, "HH:mm").isAfter(moment("13:00", "HH:mm")) && !moment(shift.Van, "HH:mm").isSameOrAfter(moment("17:00", "HH:mm")))) {
+        Roster.push({
+          fields: {
+            Aanwezig: shift.Van + " - " + shift.Tot,
+            MDW: [id.id],
+            Datum: moment(day).format("YYYY-MM-DD"),
+            Dagdeel: "Middag",
+            "Te doen": "Middag",
+            Pauze: "-",
+          }
+        }); 
+      }
+      if (moment(shift.Van, "HH:mm").isSameOrAfter(moment("17:00", "HH:mm")) || moment(shift.Tot, "HH:mm").isSameOrAfter(moment("17:00", "HH:mm"))) {
+        Roster.push({
+          fields: {
+            Aanwezig: shift.Van + " - " + shift.Tot,
+            MDW: [id.id],
+            Datum: moment(day).format("YYYY-MM-DD"),
+            Dagdeel: "Avond",
+            "Te doen": "Avond",
+            Pauze: "-",
+          }
+        }); 
+      }
     }
   }
 
