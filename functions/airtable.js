@@ -8,7 +8,7 @@ Airtable.configure({
   apiKey: process.env.API_KEY
 });
 
-const base = Airtable.base("appsjCCaGT9pRwrLB");
+const base = Airtable.base("app2IA0Bsp3pr9Syy");
 
 const statusCode = 200;
 const headers = {
