@@ -37,6 +37,11 @@ window.onload = function() {
               container.style.display = "block";
               fileDisplayArea.innerText = http.responseText;
             }
+            else if (http.readyState == 4) {
+              loader.style.display = "none";
+              container.style.display = "block";
+              fileDisplayArea.innerText = "HTTP Error: " + http.status;              
+            }
           };
           http.send(JSON.stringify(data));
         };
