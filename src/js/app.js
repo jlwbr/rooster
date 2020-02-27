@@ -2,53 +2,84 @@ import '../styles/main.scss';
 import "bootstrap";
 import "responsive-bootstrap-tabs";
 import "dragscroll"
+var Airtable = require('airtable');
+Airtable.configure({
+  endpointUrl: 'https://api.airtable.com',
+  apiKey: 'keydEl9Z5scHznutn'
+});
+var base = Airtable.base('app2IA0Bsp3pr9Syy');
 
-window.onload = function() {
-    var fileInput = document.getElementById("fileInput");
-    var container = document.getElementById("container");
-    var loader = document.getElementById("loader");
-    var fileDisplayArea = document.getElementById("fileDisplayArea");
-  
-    fileInput.addEventListener("change", function(e) {
-      var file = fileInput.files[0];
-      var http = new XMLHttpRequest();
-      var url = window.location.origin + "/.netlify/functions/airtable";
-      var textType = /text.*|application.*/;
-  
-      if (file.type.match(textType)) {
-        loader.style.display = "block";
-        container.style.display = "none";
-  
-        var reader = new FileReader();
-  
-        reader.onload = function(e) {
-          
-          var data = {
-            data: encodeURIComponent(reader.result)
-          };
-          console.log(data)
-          http.open("POST", url, true);
-          http.setRequestHeader("Content-type", "application/json");
-  
-          http.onreadystatechange = function() {
-            //Call a function when the state changes.
-            if (http.readyState == 4 && http.status == 200) {
-              loader.style.display = "none";
-              container.style.display = "block";
-              fileDisplayArea.innerText = http.responseText;
-            }
-            else if (http.readyState == 4) {
-              loader.style.display = "none";
-              container.style.display = "block";
-              fileDisplayArea.innerText = "HTTP Error: " + http.status;              
-            }
-          };
-          http.send(JSON.stringify(data));
-        };
-  
-        reader.readAsText(file);
-      } else {
-        fileDisplayArea.innerText = "Bestand niet ondersteund!";
-      }
+window.onload = function () {
+  var fileInput = document.getElementById("fileInput");
+  var container = document.getElementById("container");
+  var loader = document.getElementById("loader");
+  var fileDisplayArea = document.getElementById("fileDisplayArea");
+
+
+  if (location.pathname.split("/").slice(-1) == "print.html") {
+    base('Dagplanning').select({
+      view: "Dagverdeling"
+    }).eachPage(function page(records, fetchNextPage) {
+      $('#day').text(records[0].get("Dag"))
+      $('#weeknum').text(records[0].get("Week"))
+      $('#date').text(records[0].get("DatumText"))
+      records.forEach(function (record) {
+        const Medewerker = record.get('Medewerker') || ""
+        const ToDo = record.get('Te doen') || ""
+        const Opmerkingen = record.get('Opmerkingen') || ""
+        const Aanwezig = record.get('Aanwezig') || ""
+        const Pauze = record.get('Pauze') || ""
+        const Telefoon = record.get('Telefoon') || ""
+        $('#' + record.get('Dagdeel')).after("<tr height=18 style='height:13.2pt'><td height=18 class=xl7031011 width=86 style='height:13.2pt;width:65pt'>" + Medewerker + "</td><td colspan=2 class=xl7031011 width=165 style='width:124pt'>" + ToDo + "</td><td colspan=3 class=xl7631011 width=184 style='width:138pt'>" + Opmerkingen + "</td><td colspan=2 class=xl7031011 width=105 style='width:79pt'>" + Aanwezig + "</td><td class=xl7031011 width=79 style='width:59pt; text-align:center'>" + Pauze + "</td><td colspan=2 class=xl7031011 width=105 style='width:78pt; text-align:center'>" + Telefoon + "</td></tr>");
+        console.log('Retrieved', record.get('Medewerker'));
+      });
+      fetchNextPage();
+
+    }, function done(err) {
+      if (err) { console.error(err); return; }
     });
-  };
+  }
+
+  fileInput.addEventListener("change", function (e) {
+    var file = fileInput.files[0];
+    var http = new XMLHttpRequest();
+    var url = window.location.origin + "/.netlify/functions/airtable";
+    var textType = /text.*|application.*/;
+
+    if (file.type.match(textType)) {
+      loader.style.display = "block";
+      container.style.display = "none";
+
+      var reader = new FileReader();
+
+      reader.onload = function (e) {
+
+        var data = {
+          data: encodeURIComponent(reader.result)
+        };
+        console.log(data)
+        http.open("POST", url, true);
+        http.setRequestHeader("Content-type", "application/json");
+
+        http.onreadystatechange = function () {
+          //Call a function when the state changes.
+          if (http.readyState == 4 && http.status == 200) {
+            loader.style.display = "none";
+            container.style.display = "block";
+            fileDisplayArea.innerText = http.responseText;
+          }
+          else if (http.readyState == 4) {
+            loader.style.display = "none";
+            container.style.display = "block";
+            fileDisplayArea.innerText = "HTTP Error: " + http.status;
+          }
+        };
+        http.send(JSON.stringify(data));
+      };
+
+      reader.readAsText(file);
+    } else {
+      fileDisplayArea.innerText = "Bestand niet ondersteund!";
+    }
+  });
+};

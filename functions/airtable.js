@@ -119,8 +119,6 @@ exports.handler = async function(event) {
             MDW: [id.id],
             Datum: moment(day).format("YYYY-MM-DD"),
             Dagdeel: "Ochtend",
-            "Te doen": "Ochtend",
-            Pauze: "-",
           }
         });
         console.log("   Its an morning shift!")
@@ -132,8 +130,6 @@ exports.handler = async function(event) {
             MDW: [id.id],
             Datum: moment(day).format("YYYY-MM-DD"),
             Dagdeel: "Middag",
-            "Te doen": "Middag",
-            Pauze: "-",
           }
         });
         console.log("   Its an afternoon shift!")
@@ -145,8 +141,6 @@ exports.handler = async function(event) {
             MDW: [id.id],
             Datum: moment(day).format("YYYY-MM-DD"),
             Dagdeel: "Avond",
-            "Te doen": "Avond",
-            Pauze: "-",
           }
         });
         console.log("   Its an evening shift!")
