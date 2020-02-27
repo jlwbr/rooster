@@ -16,7 +16,7 @@ window.onload = function () {
   var fileDisplayArea = document.getElementById("fileDisplayArea");
 
 
-  if (location.pathname.split("/").slice(-1) == "print.html") {
+  if (location.pathname.split("/").slice(-1) == ("print.html" || "print")) {
     base('Dagplanning').select({
       view: "Dagverdeling"
     }).eachPage(function page(records, fetchNextPage) {
