@@ -30,7 +30,7 @@ window.onload = function () {
         const Aanwezig = record.get('Aanwezig') || ""
         const Pauze = record.get('Pauze') || ""
         const Telefoon = record.get('Telefoon') || ""
-        $('#' + record.get('Dagdeel')).after("<tr height=18 style='height:13.2pt'><td height=18 class=xl7031011 width=86 style='height:13.2pt;width:65pt'>" + Medewerker + "</td><td colspan=2 class=xl7031011 width=165 style='width:124pt'>" + ToDo + "</td><td colspan=3 class=xl7631011 width=184 style='width:138pt'>" + Opmerkingen + "</td><td colspan=2 class=xl7031011 width=105 style='width:79pt'>" + Aanwezig + "</td><td class=xl7031011 width=79 style='width:59pt; text-align:center'>" + Pauze + "</td><td colspan=2 class=xl7031011 width=105 style='width:78pt; text-align:center'>" + Telefoon + "</td></tr>");
+        $('#' + record.get('Dagdeel')).after("<tr height=18 style='height:13.2pt'><td height=18 class=xl7031011 width=86 style='height:13.2pt;width:65pt'>" + Medewerker + "</td><td colspan=2 class=xl7031011 width=165 style='width:124pt'>" + ToDo + "</td><td colspan=3 class=xl7631011 width=184 style='width:138pt'>" + Opmerkingen + "</td><td colspan=2 class=xl7031011 width=105 style='width:79pt'>" + Aanwezig + "</td><td class=xl7031011 width=79 style='width:59pt; text-align:center'>" + Telefoon + "</td><td colspan=2 class=xl7031011 width=105 style='width:78pt; text-align:center'>" + Pauze + "</td></tr>");
         console.log('Retrieved', record.get('Medewerker'));
       });
       fetchNextPage();
