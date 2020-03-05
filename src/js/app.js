@@ -9,6 +9,27 @@ Airtable.configure({
 });
 var base = Airtable.base('app2IA0Bsp3pr9Syy');
 
+function sortA(a, b) {
+  const bandA = a.get('Medewerker').toUpperCase();
+  const bandB = b.get('Medewerker').toUpperCase();
+
+  const mtA = a.get('MT')
+  const mtB = b.get('MT')
+
+  let comparison = 0;
+  if (mtA) {
+    comparison = 1;
+  } else if (mtB) {
+    comparison = -1;
+  } else if (bandA > bandB) {
+    comparison = 1;
+  } else if (bandA < bandB) {
+    comparison = -1;
+  }
+
+  return comparison * -1;
+}
+
 window.onload = function () {
   var fileInput = document.getElementById("fileInput");
   var container = document.getElementById("container");
@@ -23,15 +44,15 @@ window.onload = function () {
       $('#day').text(records[0].get("Dag"))
       $('#weeknum').text(records[0].get("Week"))
       $('#date').text(records[0].get("DatumText"))
-      records.forEach(function (record) {
+      records.sort(sortA).forEach(function (record) {
         if (!record.get('print')) {
           const Medewerker = record.get('Medewerker') || ""
           const ToDo = record.get('Te doen') || ""
           const Opmerkingen = record.get('Opmerkingen') || ""
           const Aanwezig = record.get('Aanwezig') || ""
-          const Pauze = record.get('Pauze') || ""
-          const Telefoon = record.get('Telefoon') || ""
-          $('#' + record.get('Dagdeel')).after("<tr height=18 style='height:13.2pt; border:1.75px solid #cacaca;'><td height=18 class=xl7031011 width=86 style='height:13.2pt;width:65pt;font-weight: 800;'>" + Medewerker + "</td><td colspan=2 class=xl7031011 width=165 style='width:124pt'>" + ToDo + "</td><td colspan=3 class=xl7631011 width=184 style='width:138pt'>" + Opmerkingen + "</td><td colspan=2 class=xl7031011 width=105 style='width:79pt; font-size:7.0pt; text-align:center;'>" + Aanwezig + "</td><td class=xl7031011 width=79 style='width:59pt; text-align:center;'>" + Pauze + "</td><td colspan=2 class=xl7031011 width=105 style='width:78pt; text-align:center'>" + Telefoon + "</td></tr>");
+          const Pauze = record.get('Pauze') || "-"
+          const Telefoon = record.get('Telefoon') || "-"
+          $('#' + record.get('Dagdeel')).after("<tr height=18 style='height:13.2pt; border:1.75px solid #cacaca;'><td height=18 class=xl7031011 width=86 style='height:13.2pt;width:65pt;'>" + Medewerker + "</td><td colspan=2 class=xl7031011 width=165 style='width:124pt'>" + ToDo + "</td><td colspan=3 class=xl7631011 width=184 style='width:138pt'>" + Opmerkingen + "</td><td colspan=2 class=xl7031011 width=105 style='width:79pt; font-size:7.0pt; text-align:center;'>" + Aanwezig + "</td><td class=xl7031011 width=79 style='width:59pt; text-align:center;'>" + Pauze + "</td><td colspan=2 class=xl7031011 width=105 style='width:78pt; text-align:center'>" + Telefoon + "</td></tr>");
           console.log('Retrieved', record.get('Medewerker'));
         }
       });
