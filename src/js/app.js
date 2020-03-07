@@ -30,13 +30,19 @@ function sortA(a, b) {
   return comparison * -1;
 }
 
+function getUrlVars() {
+  var vars = {};
+  var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+      vars[key] = value;
+  });
+  return vars;
+}
+
 window.onload = function () {
   var fileInput = document.getElementById("fileInput");
   var container = document.getElementById("container");
   var loader = document.getElementById("loader");
   var fileDisplayArea = document.getElementById("fileDisplayArea");
-
-
   if (location.pathname.split("/").slice(-1) == ("print.html" || "print")) {
     base('Dagplanning').select({
       view: "Dagverdeling"
@@ -63,6 +69,9 @@ window.onload = function () {
 
     }, function done(err) {
       if (err) { console.error(err); return; }
+      if(getUrlVars()["print"] != 0) {
+        window.print();
+      }
     });
   }
 
