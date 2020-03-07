@@ -110,6 +110,7 @@ exports.handler = async function(event) {
       return oldID.personalID === parseInt(shift["Persnr."])
     });
 
+    console.log("Adding Shift data: ", day, "for employee: ", id)
     if (id && day && shift && shift.Tot != "00:00") {
       if (moment(shift.Van, "HH:mm").isBefore(moment("13:00", "HH:mm"))) {
         Roster.push({
@@ -118,10 +119,9 @@ exports.handler = async function(event) {
             MDW: [id.id],
             Datum: moment(day).format("YYYY-MM-DD"),
             Dagdeel: "Ochtend",
-            "Te doen": "Ochtend",
-            Pauze: "-",
           }
         });
+        console.log("   Its an morning shift!")
       }
       if (moment(shift.Van, "HH:mm").isBetween(moment("13:00", "HH:mm"), moment("16:59", "HH:mm")) || (moment(shift.Tot, "HH:mm").isAfter(moment("13:00", "HH:mm")) && !moment(shift.Van, "HH:mm").isSameOrAfter(moment("17:00", "HH:mm")))) {
         Roster.push({
@@ -130,10 +130,9 @@ exports.handler = async function(event) {
             MDW: [id.id],
             Datum: moment(day).format("YYYY-MM-DD"),
             Dagdeel: "Middag",
-            "Te doen": "Middag",
-            Pauze: "-",
           }
-        }); 
+        });
+        console.log("   Its an afternoon shift!")
       }
       if (moment(shift.Van, "HH:mm").isSameOrAfter(moment("17:00", "HH:mm")) || moment(shift.Tot, "HH:mm").isSameOrAfter(moment("17:00", "HH:mm"))) {
         Roster.push({
@@ -142,15 +141,15 @@ exports.handler = async function(event) {
             MDW: [id.id],
             Datum: moment(day).format("YYYY-MM-DD"),
             Dagdeel: "Avond",
-            "Te doen": "Avond",
-            Pauze: "-",
           }
-        }); 
+        });
+        console.log("   Its an evening shift!")
       }
     }
   }
 
   while(Roster.length) {
+    console.log("Creating records")
     await base("Dagplanning").create(Roster.splice(0,10), function(err, records) {
       if (err) {
         console.error(err);

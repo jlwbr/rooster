@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -2508,3 +2509,5 @@ eval("\nvar content = __webpack_require__(/*! !../../node_modules/mini-css-extra
 /***/ })
 
 /******/ });
+=======
+>>>>>>> 92313e78be2931fc039dd08878e279fc8aefffe8

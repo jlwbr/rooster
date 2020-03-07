@@ -18,6 +18,9 @@ const config = {
     filename: 'js/[name].js',
     path: path.resolve(__dirname, 'dist'),
   },
+  devServer: {
+    contentBase: './dist',
+  },
   module: {
     rules: [
       {
@@ -49,6 +52,12 @@ const config = {
       hash: false,
       filename: 'index.html',
       template: path.resolve(__dirname, 'src', 'index.html')
+    }),
+    new HtmlWebpackPlugin({
+      inject: true,
+      hash: false,
+      filename: 'print.html',
+      template: path.resolve(__dirname, 'src', 'print.html')
     }),
     new MiniCssExtractPlugin({
       filename: 'css/[name].css',

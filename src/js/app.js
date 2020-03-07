@@ -2,6 +2,12 @@ import '../styles/main.scss';
 import "bootstrap";
 import "responsive-bootstrap-tabs";
 import "dragscroll"
+var Airtable = require('airtable');
+Airtable.configure({
+  endpointUrl: 'https://api.airtable.com',
+  apiKey: 'keydEl9Z5scHznutn'
+});
+var base = Airtable.base('app2IA0Bsp3pr9Syy');
 
 function sortA(a, b) {
   const bandA = a.get('Medewerker') || "";
