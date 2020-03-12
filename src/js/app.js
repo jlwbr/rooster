@@ -50,6 +50,7 @@ window.onload = function () {
       $('#day').text(records[0].get("Dag"))
       $('#weeknum').text(records[0].get("Week"))
       $('#date').text(records[0].get("DatumText"))
+      $('#year').text(new Date().getFullYear())
       records.sort(sortA).forEach(function (record) {
         if (record.get('Medewerker')) {
           const Medewerker = record.get('Medewerker') || ""
