@@ -57,10 +57,13 @@ window.onload = function () {
           const ToDo = record.get('Te doen') || ""
           const Opmerkingen = record.get('Opmerkingen') || ""
           const Aanwezig = record.get('Aanwezig') || ""
-          const Pauze = record.get('Pauze') || "-"
+          let Pauze = record.get('Pauze') || "-"
           let Telefoon = record.get('Telefoon') || "-"
           if (Telefoon == "- + Porto") {
             Telefoon = "Porto"
+          }
+        if (Pauze == "") {
+            Pauze = "-"
           }
           $('#' + record.get('Dagdeel')).after("<tr height=18 style='height:13.2pt; border:1.75px solid #cacaca;'><td height=18 class=xl7031011 width=86 style='height:13.2pt;width:65pt;'>" + Medewerker + "</td><td colspan=2 class=xl7031011 width=165 style='width:124pt'>" + ToDo + "</td><td colspan=3 class=xl7631011 width=184 style='width:138pt'>" + Opmerkingen + "</td><td colspan=2 class=xl7031011 width=105 style='width:79pt; font-size:7.0pt; text-align:center;'>" + Aanwezig + "</td><td class=xl7031011 width=79 style='width:59pt; text-align:center;'>" + Pauze + "</td><td colspan=2 class=xl7031011 width=105 style='width:78pt; text-align:center'>" + Telefoon + "</td></tr>");
           console.log('Retrieved', record.get('Medewerker'));
