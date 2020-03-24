@@ -56,7 +56,7 @@ const getPersonalID = async id =>
       );
   });
 
-exports.handler = async function(event) {
+exports.handler = async function (event) {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 200, // <-- Important!
@@ -75,6 +75,38 @@ exports.handler = async function(event) {
         status: "Missing data!"
       })
     };
+  }
+
+  // Delete old data
+  let recordList = []
+
+  base('Dagplanning').select({
+    // Selecting the first 3 records in Dagverdeling:
+    view: "Dagverdeling"
+  }).eachPage(function page(records, fetchNextPage) {
+    // This function (`page`) will get called for each page of records.
+
+    records.forEach(function (record) {
+      recordList.push(record.id)
+    });
+
+    // To fetch the next page of records, call `fetchNextPage`.
+    // If there are more records, `page` will get called again.
+    // If there are no more records, `done` will get called.
+    fetchNextPage();
+  }, function done(err) {
+    if (err) { console.error(err); return; }
+  });
+
+  console.log("Deleting records")
+  while (recordList.length) {
+    await base('Dagplanning').destroy(Roster.splice(0, 10), function(err, deletedRecords) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      console.log(' Deleted', deletedRecords.length, 'records');
+    });
   }
 
   // Decode and parse incoming data
@@ -134,7 +166,7 @@ exports.handler = async function(event) {
         });
         console.log("   Its an afternoon shift!")
       }
-      if (moment(shift.Van, "HH:mm").isSameOrAfter(moment("17:00", "HH:mm")) || moment(shift.Tot, "HH:mm").isSameOrAfter(moment("17:00", "HH:mm"))) {
+      if (moment(shift.Van, "HH:mm").isAfter(moment("17:00", "HH:mm")) || moment(shift.Tot, "HH:mm").isAfter(moment("17:00", "HH:mm"))) {
         Roster.push({
           fields: {
             Aanwezig: shift.Van + " - " + shift.Tot,
@@ -148,9 +180,9 @@ exports.handler = async function(event) {
     }
   }
 
-  while(Roster.length) {
+  while (Roster.length) {
     console.log("Creating records")
-    await base("Dagplanning").create(Roster.splice(0,10), function(err, records) {
+    await base("Dagplanning").create(Roster.splice(0, 10), function (err, records) {
       if (err) {
         console.error(err);
         status = err
