@@ -100,7 +100,7 @@ exports.handler = async function (event) {
 
   console.log("Deleting records")
   while (recordList.length) {
-    await base('Dagplanning').destroy(Roster.splice(0, 10), function(err, deletedRecords) {
+    await base('Dagplanning').destroy(recordList.splice(0, 10), function(err, deletedRecords) {
       if (err) {
         console.error(err);
         return;
