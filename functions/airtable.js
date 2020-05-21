@@ -16,11 +16,9 @@ const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
     "content-type": "application/json"
-  };
+};
 
-const log = (message) => {
-    console.log("[" + trackingid + "] " + message)
-}
+let status = "Succes"
 
 const removeOldData = async () => {
     await base('Dagplanning').select({
@@ -30,11 +28,18 @@ const removeOldData = async () => {
         while (recordList.length) {
             await base('Dagplanning').destroy(recordList.splice(0, 10), function (err, deletedRecords) {
                 if (err) {
+                    status = err + "\n request ID: " + context.awsRequestId
                     console.error(err);
                     return;
                 }
-                log('Deleted', deletedRecords.length, 'records');
+                console.log('Deleted', deletedRecords.length, 'records');
             });
+        }
+    }).catch(err => {
+        if (err) {
+            status = err + "\n request ID: " + context.awsRequestId
+            console.error(err);
+            return;
         }
     })
 }
@@ -47,7 +52,7 @@ const parseCSV = (document) => {
     return parsed.data;
 }
 
-exports.handler = async function (event) {
+exports.handler = async function (event, context, callback) {
     if (event.httpMethod !== "POST") {
         return {
             statusCode: 200, // <-- Important!
@@ -83,8 +88,8 @@ exports.handler = async function (event) {
             const id = records.find(record => record.get("Persoonsnummer") === parseInt(shift["Persnr."]))
 
             if (id && day && shift && shift.Tot != "00:00") {
-                log("Adding Shift data: " + shift.Dag + " for employee: " + shift["Persnr."])
-                
+                console.log("Adding Shift data: " + shift.Dag + " for employee: " + shift["Persnr."])
+
                 if (moment(shift.Van, "HH:mm").isBefore(moment("13:00", "HH:mm"))) {
                     Roster.push({
                         fields: {
@@ -94,7 +99,7 @@ exports.handler = async function (event) {
                             Dagdeel: "Ochtend",
                         }
                     });
-                    log("   Its an morning shift!")
+                    console.log("   Its an morning shift!")
                 }
                 if (moment(shift.Van, "HH:mm").isBetween(moment("13:00", "HH:mm"), moment("16:59", "HH:mm")) || (moment(shift.Tot, "HH:mm").isAfter(moment("13:00", "HH:mm")) && !moment(shift.Van, "HH:mm").isSameOrAfter(moment("17:00", "HH:mm")))) {
                     Roster.push({
@@ -105,7 +110,7 @@ exports.handler = async function (event) {
                             Dagdeel: "Middag",
                         }
                     });
-                    log("   Its an afternoon shift!")
+                    console.log("   Its an afternoon shift!")
                 }
                 if (moment(shift.Van, "HH:mm").isAfter(moment("17:00", "HH:mm")) || moment(shift.Tot, "HH:mm").isAfter(moment("17:00", "HH:mm"))) {
                     Roster.push({
@@ -116,27 +121,31 @@ exports.handler = async function (event) {
                             Dagdeel: "Avond",
                         }
                     });
-                    log("   Its an evening shift!")
+                    console.log("   Its an evening shift!")
                 }
             }
         }
-
         while (Roster.length) {
-            log("Creating records")
+            console.log("Creating records")
             await base("Dagplanning").create(Roster.splice(0, 10), function (err, records) {
                 if (err) {
+                    status = err + "\n request ID: " + context.awsRequestId
                     console.error(err);
                     return;
                 }
             });
         }
-
-
+    }).catch(err => {
+        if (err) {
+            status = err + "\n request ID: " + context.awsRequestId
+            console.error(err);
+            return;
+        }
     })
 
     return {
         statusCode: 200,
         headers,
-        body: "Succes"
+        body: status
     };
 }
