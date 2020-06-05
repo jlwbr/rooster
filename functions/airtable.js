@@ -20,8 +20,8 @@ const headers = {
 
 let status = "Succes"
 
-const removeOldData = async () => {
-    await base('Dagplanning').select({
+const removeOldData = new Promise((resolve,reject) => {
+    base('Dagplanning').select({
         view: "Rooster"
     }).all().then(async records => {
         const recordList = records.map(record => record.id)
@@ -35,48 +35,18 @@ const removeOldData = async () => {
                 console.log('Deleted', deletedRecords.length, 'records');
             });
         }
+        resolve();
     }).catch(err => {
         if (err) {
             status = err + "\n request ID: " + context.awsRequestId
             console.error(err);
             return;
         }
+        reject(err)
     })
-}
+});
 
-const parseCSV = (document) => {
-    const parsed = Papa.parse(document, {
-        header: true
-    });
-
-    return parsed.data;
-}
-
-exports.handler = async function (event, context, callback) {
-    if (event.httpMethod !== "POST") {
-        return {
-            statusCode: 200, // <-- Important!
-            headers,
-            body: JSON.stringify({
-                status: "This was not a POST request!"
-            })
-        };
-    }
-
-    if (event.body === null || event.body === undefined) {
-        return {
-            statusCode: 200, // <-- Important!
-            headers,
-            body: JSON.stringify({
-                status: "Missing data!"
-            })
-        };
-    }
-
-    await removeOldData()
-    const body = JSON.parse(event.body)
-    const data = parseCSV(decodeURIComponent(body.data))
-
+const CreateNewData = async (data) => {
     await base('Medewerkers').select({
         view: "Medewerkers"
     }).all().then(async records => {
@@ -141,6 +111,49 @@ exports.handler = async function (event, context, callback) {
             console.error(err);
             return;
         }
+    })
+}
+
+const sleep = ms => {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
+const parseCSV = (document) => {
+    const parsed = Papa.parse(document, {
+        header: true
+    });
+
+    return parsed.data;
+}
+
+exports.handler = async function (event, context, callback) {
+    if (event.httpMethod !== "POST") {
+        return {
+            statusCode: 200, // <-- Important!
+            headers,
+            body: JSON.stringify({
+                status: "This was not a POST request!"
+            })
+        };
+    }
+
+    if (event.body === null || event.body === undefined) {
+        return {
+            statusCode: 200, // <-- Important!
+            headers,
+            body: JSON.stringify({
+                status: "Missing data!"
+            })
+        };
+    }
+    
+    const body = JSON.parse(event.body)
+    const data = parseCSV(decodeURIComponent(body.data))
+
+
+    removeOldData().then(() => {
+        // Sleeping here to make sure all data is deleted
+        sleep(1000).then(v => CreateNewData(data))
     })
 
     return {
