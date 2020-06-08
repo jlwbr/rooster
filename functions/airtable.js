@@ -20,8 +20,39 @@ const headers = {
 
 let status = "Succes"
 
-const removeOldData = (cb) => {
-    base('Dagplanning').select({
+const parseCSV = (document) => {
+    const parsed = Papa.parse(document, {
+        header: true
+    });
+
+    return parsed.data;
+}
+
+exports.handler = async function (event, context, callback) {
+    if (event.httpMethod !== "POST") {
+        return {
+            statusCode: 200, // <-- Important!
+            headers,
+            body: JSON.stringify({
+                status: "This was not a POST request!"
+            })
+        };
+    }
+
+    if (event.body === null || event.body === undefined) {
+        return {
+            statusCode: 200, // <-- Important!
+            headers,
+            body: JSON.stringify({
+                status: "Missing data!"
+            })
+        };
+    }
+
+    const body = JSON.parse(event.body)
+    const data = parseCSV(decodeURIComponent(body.data))
+
+    await base('Dagplanning').select({
         view: "Rooster"
     }).all().then(async records => {
         const recordList = records.map(record => record.id)
@@ -35,75 +66,71 @@ const removeOldData = (cb) => {
                 console.log('Deleted', deletedRecords.length, 'records');
             });
         }
-        cb();
-    }).catch(err => {
-        if (err) {
-            status = err + "\n request ID: " + context.awsRequestId
-            console.error(err);
-            return;
-        }
-    })
-}
+        await base('Medewerkers').select({
+            view: "Medewerkers"
+        }).all().then(async records => {
+            let Roster = []
 
-const CreateNewData = async (data) => {
-    await base('Medewerkers').select({
-        view: "Medewerkers"
-    }).all().then(async records => {
-        let Roster = []
+            for (i in data) {
+                const shift = data[i];
+                const day = moment(shift.Dag, "DD-MM-YYYY")
+                const id = records.find(record => record.get("Persoonsnummer") === parseInt(shift["Persnr."]))
 
-        for (i in data) {
-            const shift = data[i];
-            const day = moment(shift.Dag, "DD-MM-YYYY")
-            const id = records.find(record => record.get("Persoonsnummer") === parseInt(shift["Persnr."]))
+                if (id && day && shift && shift.Tot != "00:00") {
+                    console.log("Adding Shift data: " + shift.Dag + " for employee: " + shift["Persnr."])
 
-            if (id && day && shift && shift.Tot != "00:00") {
-                console.log("Adding Shift data: " + shift.Dag + " for employee: " + shift["Persnr."])
-
-                if (moment(shift.Van, "HH:mm").isBefore(moment("13:00", "HH:mm"))) {
-                    Roster.push({
-                        fields: {
-                            Aanwezig: shift.Van + " - " + shift.Tot,
-                            MDW: [id.id],
-                            Datum: moment(day).format("YYYY-MM-DD"),
-                            Dagdeel: "Ochtend",
-                        }
-                    });
-                    console.log("   Its an morning shift!")
-                }
-                if (moment(shift.Van, "HH:mm").isBetween(moment("13:00", "HH:mm"), moment("16:59", "HH:mm")) || (moment(shift.Tot, "HH:mm").isAfter(moment("13:00", "HH:mm")) && !moment(shift.Van, "HH:mm").isSameOrAfter(moment("17:00", "HH:mm")))) {
-                    Roster.push({
-                        fields: {
-                            Aanwezig: shift.Van + " - " + shift.Tot,
-                            MDW: [id.id],
-                            Datum: moment(day).format("YYYY-MM-DD"),
-                            Dagdeel: "Middag",
-                        }
-                    });
-                    console.log("   Its an afternoon shift!")
-                }
-                if (moment(shift.Van, "HH:mm").isAfter(moment("17:00", "HH:mm")) || moment(shift.Tot, "HH:mm").isAfter(moment("17:00", "HH:mm"))) {
-                    Roster.push({
-                        fields: {
-                            Aanwezig: shift.Van + " - " + shift.Tot,
-                            MDW: [id.id],
-                            Datum: moment(day).format("YYYY-MM-DD"),
-                            Dagdeel: "Avond",
-                        }
-                    });
-                    console.log("   Its an evening shift!")
+                    if (moment(shift.Van, "HH:mm").isBefore(moment("13:00", "HH:mm"))) {
+                        Roster.push({
+                            fields: {
+                                Aanwezig: shift.Van + " - " + shift.Tot,
+                                MDW: [id.id],
+                                Datum: moment(day).format("YYYY-MM-DD"),
+                                Dagdeel: "Ochtend",
+                            }
+                        });
+                        console.log("   Its an morning shift!")
+                    }
+                    if (moment(shift.Van, "HH:mm").isBetween(moment("13:00", "HH:mm"), moment("16:59", "HH:mm")) || (moment(shift.Tot, "HH:mm").isAfter(moment("13:00", "HH:mm")) && !moment(shift.Van, "HH:mm").isSameOrAfter(moment("17:00", "HH:mm")))) {
+                        Roster.push({
+                            fields: {
+                                Aanwezig: shift.Van + " - " + shift.Tot,
+                                MDW: [id.id],
+                                Datum: moment(day).format("YYYY-MM-DD"),
+                                Dagdeel: "Middag",
+                            }
+                        });
+                        console.log("   Its an afternoon shift!")
+                    }
+                    if (moment(shift.Van, "HH:mm").isAfter(moment("17:00", "HH:mm")) || moment(shift.Tot, "HH:mm").isAfter(moment("17:00", "HH:mm"))) {
+                        Roster.push({
+                            fields: {
+                                Aanwezig: shift.Van + " - " + shift.Tot,
+                                MDW: [id.id],
+                                Datum: moment(day).format("YYYY-MM-DD"),
+                                Dagdeel: "Avond",
+                            }
+                        });
+                        console.log("   Its an evening shift!")
+                    }
                 }
             }
-        }
-        while (Roster.length) {
-            console.log("Creating records")
-            await base("Dagplanning").create(Roster.splice(0, 10), function (err, records) {
-                if (err) {
-                    status = err + "\n request ID: " + context.awsRequestId
-                    console.error(err);
-                    return;
-                }
-            });
-        }
+            while (Roster.length) {
+                console.log("Creating records")
+                await base("Dagplanning").create(Roster.splice(0, 10), function (err, records) {
+                    if (err) {
+                        status = err + "\n request ID: " + context.awsRequestId
+                        console.error(err);
+                        return;
+                    }
+                });
+            }
+        }).catch(err => {
+            if (err) {
+                status = err + "\n request ID: " + context.awsRequestId
+                console.error(err);
+                return;
+            }
+        })
     }).catch(err => {
         if (err) {
             status = err + "\n request ID: " + context.awsRequestId
@@ -111,48 +138,10 @@ const CreateNewData = async (data) => {
             return;
         }
     })
-}
 
-const parseCSV = (document) => {
-    const parsed = Papa.parse(document, {
-        header: true
-    });
-
-    return parsed.data;
-}
-
-exports.handler = async function (event, context, callback) {
-    if (event.httpMethod !== "POST") {
-        callback(null, {
-            statusCode: 200, // <-- Important!
-            headers,
-            body: JSON.stringify({
-                status: "This was not a POST request!"
-            })
-        })
-    }
-
-    if (event.body === null || event.body === undefined) {
-        callback(null, {
-            statusCode: 200, // <-- Important!
-            headers,
-            body: JSON.stringify({
-                status: "Missing data!"
-            })
-        })
-    }
-
-    const body = JSON.parse(event.body)
-    const data = parseCSV(decodeURIComponent(body.data))
-
-
-    removeOldData(() => {
-        CreateNewData(data)
-
-        callback(null, {
-            statusCode: 200,
-            headers,
-            body: status
-        })
-    })
+    return {
+        statusCode: 200,
+        headers,
+        body: status
+    };
 }
