@@ -123,23 +123,23 @@ const parseCSV = (document) => {
 
 exports.handler = async function (event, context, callback) {
     if (event.httpMethod !== "POST") {
-        return {
+        callback(null, {
             statusCode: 200, // <-- Important!
             headers,
             body: JSON.stringify({
                 status: "This was not a POST request!"
             })
-        };
+        })
     }
 
     if (event.body === null || event.body === undefined) {
-        return {
+        callback(null, {
             statusCode: 200, // <-- Important!
             headers,
             body: JSON.stringify({
                 status: "Missing data!"
             })
-        };
+        })
     }
 
     const body = JSON.parse(event.body)
@@ -148,11 +148,11 @@ exports.handler = async function (event, context, callback) {
 
     removeOldData(() => {
         CreateNewData(data)
-    })
 
-    return {
-        statusCode: 200,
-        headers,
-        body: status
-    };
+        callback(null, {
+            statusCode: 200,
+            headers,
+            body: status
+        })
+    })
 }
