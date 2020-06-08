@@ -20,7 +20,7 @@ const headers = {
 
 let status = "Succes"
 
-const removeOldData = new Promise((resolve,reject) => {
+const removeOldData = new Promise((resolve, reject) => {
     base('Dagplanning').select({
         view: "Rooster"
     }).all().then(async records => {
@@ -114,10 +114,6 @@ const CreateNewData = async (data) => {
     })
 }
 
-const sleep = ms => {
-    return new Promise(resolve => setTimeout(resolve, ms))
-  }
-
 const parseCSV = (document) => {
     const parsed = Papa.parse(document, {
         header: true
@@ -146,14 +142,16 @@ exports.handler = async function (event, context, callback) {
             })
         };
     }
-    
+
     const body = JSON.parse(event.body)
     const data = parseCSV(decodeURIComponent(body.data))
 
 
     removeOldData().then(() => {
-        // Sleeping here to make sure all data is deleted
-        sleep(1000).then(v => CreateNewData(data))
+        // Sleeping here to make sure all data is 
+        setTimeout(() => {
+            CreateNewData(data)
+        }, 1000)
     })
 
     return {
