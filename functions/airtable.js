@@ -67,7 +67,7 @@ exports.handler = async function (event, context, callback) {
             });
         }
 
-        setTimeout(() => {
+        setTimeout(async () => {
             await base('Medewerkers').select({
                 view: "Medewerkers"
             }).all().then(async records => {
