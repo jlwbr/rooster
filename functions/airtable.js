@@ -20,31 +20,33 @@ const headers = {
 
 let status = "Succes"
 
-const removeOldData = new Promise((resolve,reject) => {
-    base('Dagplanning').select({
-        view: "Rooster"
-    }).all().then(async records => {
-        const recordList = records.map(record => record.id)
-        while (recordList.length) {
-            await base('Dagplanning').destroy(recordList.splice(0, 10), function (err, deletedRecords) {
-                if (err) {
-                    status = err + "\n request ID: " + context.awsRequestId
-                    console.error(err);
-                    return;
-                }
-                console.log('Deleted', deletedRecords.length, 'records');
-            });
-        }
-        resolve();
-    }).catch(err => {
-        if (err) {
-            status = err + "\n request ID: " + context.awsRequestId
-            console.error(err);
-            return;
-        }
-        reject(err)
-    })
-});
+const removeOldData = () => {
+    return new Promise((resolve,reject) => {
+        base('Dagplanning').select({
+            view: "Rooster"
+        }).all().then(async records => {
+            const recordList = records.map(record => record.id)
+            while (recordList.length) {
+                await base('Dagplanning').destroy(recordList.splice(0, 10), function (err, deletedRecords) {
+                    if (err) {
+                        status = err + "\n request ID: " + context.awsRequestId
+                        console.error(err);
+                        return;
+                    }
+                    console.log('Deleted', deletedRecords.length, 'records');
+                });
+            }
+            resolve();
+        }).catch(err => {
+            if (err) {
+                status = err + "\n request ID: " + context.awsRequestId
+                console.error(err);
+                return;
+            }
+            reject(err)
+        })
+    });
+}
 
 const CreateNewData = async (data) => {
     await base('Medewerkers').select({
