@@ -147,7 +147,7 @@ exports.handler = async function (event, context, callback) {
     const data = parseCSV(decodeURIComponent(body.data))
 
 
-    removeOldData().then(() => {
+    removeOldData.then(() => {
         CreateNewData(data)
     })
 
