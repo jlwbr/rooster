@@ -20,32 +20,29 @@ const headers = {
 
 let status = "Succes"
 
-const removeOldData = () => {
-    return new Promise((resolve,reject) => {
-        base('Dagplanning').select({
-            view: "Rooster"
-        }).all().then(async records => {
-            const recordList = records.map(record => record.id)
-            while (recordList.length) {
-                await base('Dagplanning').destroy(recordList.splice(0, 10), function (err, deletedRecords) {
-                    if (err) {
-                        status = err + "\n request ID: " + context.awsRequestId
-                        console.error(err);
-                        return;
-                    }
-                    console.log('Deleted', deletedRecords.length, 'records');
-                });
-            }
-            resolve();
-        }).catch(err => {
-            if (err) {
-                status = err + "\n request ID: " + context.awsRequestId
-                console.error(err);
-                return;
-            }
-            reject(err)
-        })
-    });
+const removeOldData = (cb) => {
+    base('Dagplanning').select({
+        view: "Rooster"
+    }).all().then(async records => {
+        const recordList = records.map(record => record.id)
+        while (recordList.length) {
+            await base('Dagplanning').destroy(recordList.splice(0, 10), function (err, deletedRecords) {
+                if (err) {
+                    status = err + "\n request ID: " + context.awsRequestId
+                    console.error(err);
+                    return;
+                }
+                console.log('Deleted', deletedRecords.length, 'records');
+            });
+        }
+        cb();
+    }).catch(err => {
+        if (err) {
+            status = err + "\n request ID: " + context.awsRequestId
+            console.error(err);
+            return;
+        }
+    })
 }
 
 const CreateNewData = async (data) => {
@@ -144,12 +141,12 @@ exports.handler = async function (event, context, callback) {
             })
         };
     }
-    
+
     const body = JSON.parse(event.body)
     const data = parseCSV(decodeURIComponent(body.data))
 
 
-    removeOldData.then(() => {
+    removeOldData(() => {
         CreateNewData(data)
     })
 
