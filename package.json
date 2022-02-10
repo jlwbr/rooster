@@ -39,7 +39,7 @@
     "html-webpack-plugin": "^4.3.0",
     "lint": "^0.7.0",
     "mini-css-extract-plugin": "^0.9.0",
-    "node-sass": "^4.12.0",
+    "node-sass": "^7.0.0",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
     "postcss-loader": "^3.0.0",
     "retinajs": "^2.1.3",
